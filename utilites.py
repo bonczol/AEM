@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def load(filename):
-	return np.genfromtxt(filename, skip_header=6, skip_footer=1, dtype='int64')[:,1:] # Skip enumeration
+	return np.genfromtxt(filename, skip_header=6, skip_footer=1, dtype='int64')[:,1:] # Skip numeration
+
 
 def calc_distance_matrix(points):
 	n = points.shape[0]
@@ -12,20 +14,10 @@ def calc_distance_matrix(points):
 
 	return distances
 
-def find_greedy(tab):
-	steps=50
-	c=30 			#start point
-	points=[c]
-	for i in range(steps):    #tutaj jest taki problem że z tablicy trzeba byłoby usuwać wężły w którcyh się już było
-		tab[c, c] = 9999
-		d = np.argmin(tab[c,:])
-		tab[c,d]=tab[d,c]=9999
-		c=d
-		points.append(c)
-	return points
 
-def print_plot(data, points):
+def print_plot(data, start_point, points):
 	plt.plot(data[:, 0], data[:, 1], "o:", linewidth=0, alpha=0.5)
+	plt.plot(data[start_point, 0], data[start_point, 1], "ro:", linewidth=0)
 	plt.plot(data[points, 0], data[points, 1], "+:", color="green", linewidth=2, alpha=0.5)
 	# plt.legend("Dane x, y\nPrzemieszczenie: ", loc="upper left")
 	plt.xlabel("lx")
@@ -34,9 +26,16 @@ def print_plot(data, points):
 	plt.grid(True)
 	plt.show()
 
-instance = load("instances/kroA100.tsp")
-distances = calc_distance_matrix(instance)
-points=find_greedy(distances)
-print_plot(instance, points)
 
-# print(distances)
+def evaluate(path, distances):
+	length = 0
+	for i in range(len(path)-1):
+		length += distances[path[i], path[i+1]]
+
+	# Back to first point
+	length += distances[path[-1], path[0]]
+	return length
+
+
+
+
