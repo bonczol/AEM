@@ -25,14 +25,6 @@ def nearest_neighbor(start_point, distances):
 	return path
 
 
-def find_nearest_n_points(point, distances, n):
-	return np.argsort(distances[point])[1:n+1]
-
-
-def find_nearest_neighbour(point, points, allowed, distances):
-	return points[allowed][np.argmin(distances[point, allowed])]
-
-
 def greedy_cycle(start_point, distances):  # dodawanie kolenych łuków do cyklu Hamiltona
 	n_all = distances.shape[0]
 	n = int(np.ceil(n_all / 2))
@@ -44,12 +36,7 @@ def greedy_cycle(start_point, distances):  # dodawanie kolenych łuków do cyklu
 	path = [start_point]
 	allowed[start_point] = False
 
-	# Add start point's nearest neighbour and set as visited
-	nearest_point = find_nearest_neighbour(start_point, points, allowed, distances)
-	path.append(nearest_point)
-	allowed[nearest_point] = False
-
-	for i in range(2, n):
+	for i in range(1, n):
 		points_to_check = points[allowed]
 
 		# Create matrix with path length after all posible insertions and pick best cell
@@ -62,10 +49,15 @@ def greedy_cycle(start_point, distances):  # dodawanie kolenych łuków do cyklu
 	return path
 
 
+def find_nearest_n_points(point, distances, n):
+	return np.argsort(distances[point])[1:n+1]
+
+def find_nearest_neighbour(point, points, allowed, distances):
+	return points[allowed][np.argmin(distances[point, allowed])]
+
 def find_path_extension(path, points, distances):
 	ext = [[evaluate(path.copy(), point, position, distances) for point in points] for position in range(len(path))]
 	return np.array(ext)
-
 
 def evaluate(path, point, position, distances):
 	path.insert(position, point)
