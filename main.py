@@ -1,5 +1,22 @@
 import utilites as ut
 import greedy_algorithms as alg
+import numpy as np
+
+
+def test(algorithm, instance, distances):
+	n = instance.shape[0]
+	results = np.zeros(n, dtype="int64")
+
+	for i in range(n):
+		solution = algorithm(i, distances)
+		results[i] = ut.evaluate(solution, distances)
+		print(results[i])
+
+	min_val = np.min(results)
+	max_val = np.max(results)
+	avg_val = np.mean(results)
+
+	return (min_val, max_val, avg_val)
 
 
 def main():
@@ -7,11 +24,9 @@ def main():
 	instances_names = ["kroA100.tsp","kroB100.tsp"]
 	instance = ut.load(f'instances/{instances_names[1]}')
 	distances = ut.calc_distance_matrix(instance)
-	solution = alg.nearest_neighbor(start_point, distances)
-	result = ut.evaluate(solution, distances)
-
-	print(result)
-	ut.print_plot(instance, start_point, solution)
+	# results = test(alg.nearest_neighbor, instance, distances)
+	results = test(alg.greedy_cycle, instance, distances)
+	print(results)
   
 if __name__== "__main__":
   main()
