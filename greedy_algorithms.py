@@ -66,25 +66,24 @@ def greedy_cycle_with_regret(start_point, distances):  # dodawanie kolenych łuk
 	allowed[nearest_point] = False
 
 	while n > len(path):
-		l = ut.evaluate(path, distances)
 		points_to_check = points[allowed]
 
 		# Create matrix with path length after all posible insertions and pick best cell
-		path_extensions = find_path_extensions(path, points_to_check, distances, l)
+		path_extensions = find_path_extensions(path, points_to_check, distances)
 		insert_position, insert_point_idx = np.unravel_index(path_extensions.argmin(), path_extensions.shape)
 		insert_point = points_to_check[insert_point_idx]
 
-		path_cuts = find_path_reductions(path, [(insert_position-1) % len(path), insert_position%len(path)], distances, l)
+		path_cuts = find_path_reductions(path, [(insert_position-1) % len(path), insert_position%len(path)], distances)
 		del_point_idx = np.argmax(path_cuts)
 
 		if path_extensions[insert_position, insert_point_idx] >= path_cuts[del_point_idx]:
 			path.insert(insert_position, insert_point)
 			allowed[insert_point] = False
 		else:
-			allowed[path[del_point_idx]] = True
-			path.pop(del_point_idx)
+			allowed[path.pop(del_point_idx)] = True
+			bias = -1 if del_point_idx < insert_position else 0
 			
-			path.insert(insert_position, insert_point)
+			path.insert(insert_position+bias, insert_point)
 			allowed[insert_point] = False
 
 	return path
@@ -98,12 +97,12 @@ def find_nearest_neighbour(point, points, allowed, distances):
 	return points[allowed][np.argmin(distances[point, allowed])]
 
 
-def find_path_extensions(path, points, distances, l):
-	return np.array([[evaluate_add(path.copy(), position, point, distances)-l for point in points] for position in range(len(path))])
+def find_path_extensions(path, points, distances):
+	return np.array([[length_extension(path, position, point, distances) for point in points] for position in range(len(path))])
 
 
-def find_path_reductions(path, forbidden, distances, l):
-	ext = [0 if position in forbidden else l - evaluate_cut(path.copy(), position, distances) for position in range(len(path))]
+def find_path_reductions(path, forbidden, distances):
+	ext = [-1 if position in forbidden else length_reduction(path.copy(), position, distances) for position in range(len(path))]
 	return np.array(ext)
 
 
