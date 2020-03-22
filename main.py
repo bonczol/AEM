@@ -25,7 +25,8 @@ def main():
 	instance = ut.load(f'instances/{instances_names[1]}')
 	distances = ut.calc_distance_matrix(instance)
 	# results = test(alg.nearest_neighbor, instance, distances)
-	results = test(alg.greedy_cycle, instance, distances)
+	# results = test(alg.greedy_cycle, instance, distances)
+	results = test(alg.greedy_cycle_with_regret, instance, distances)
 	print(results)
   
 if __name__== "__main__":

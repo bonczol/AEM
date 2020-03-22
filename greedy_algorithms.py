@@ -1,5 +1,6 @@
 import numpy as np
 import utilites as ut
+import numpy.ma as ma
 
 
 def nearest_neighbor(start_point, distances):
@@ -40,7 +41,7 @@ def greedy_cycle(start_point, distances):  # dodawanie kolenych łuków do cyklu
 		points_to_check = points[allowed]
 
 		# Create matrix with path length after all posible insertions and pick best cell
-		path_extensions = find_path_extension(path, points_to_check, distances)
+		path_extensions = find_path_extensions(path, points_to_check, distances)
 		position, point_idx = np.unravel_index(path_extensions.argmin(), path_extensions.shape)
 
 		path.insert(position, points_to_check[point_idx])
@@ -49,16 +50,87 @@ def greedy_cycle(start_point, distances):  # dodawanie kolenych łuków do cyklu
 	return path
 
 
+def greedy_cycle_with_regret(start_point, distances):  # dodawanie kolenych łuków do cyklu Hamiltona
+	n_all = distances.shape[0]
+	n = int(np.ceil(n_all / 2))
+
+	points = np.arange(n_all)
+	allowed = np.ones(n_all, dtype='bool')
+
+	# Add start point and set as visted
+	path = [start_point]
+	allowed[start_point] = False
+
+	nearest_point = find_nearest_neighbour(start_point, points, allowed, distances)
+	path.append(nearest_point)
+	allowed[nearest_point] = False
+
+	while n > len(path):
+		l = ut.evaluate(path, distances)
+		points_to_check = points[allowed]
+
+		# Create matrix with path length after all posible insertions and pick best cell
+		path_extensions = find_path_extensions(path, points_to_check, distances, l)
+		insert_position, insert_point_idx = np.unravel_index(path_extensions.argmin(), path_extensions.shape)
+		insert_point = points_to_check[insert_point_idx]
+
+		path_cuts = find_path_reductions(path, [(insert_position-1) % len(path), insert_position%len(path)], distances, l)
+		del_point_idx = np.argmax(path_cuts)
+
+		if path_extensions[insert_position, insert_point_idx] >= path_cuts[del_point_idx]:
+			path.insert(insert_position, insert_point)
+			allowed[insert_point] = False
+		else:
+			allowed[path[del_point_idx]] = True
+			path.pop(del_point_idx)
+			
+			path.insert(insert_position, insert_point)
+			allowed[insert_point] = False
+
+	return path
+
+
 def find_nearest_n_points(point, distances, n):
 	return np.argsort(distances[point])[1:n+1]
+
 
 def find_nearest_neighbour(point, points, allowed, distances):
 	return points[allowed][np.argmin(distances[point, allowed])]
 
-def find_path_extension(path, points, distances):
-	ext = [[evaluate(path.copy(), point, position, distances) for point in points] for position in range(len(path))]
+
+def find_path_extensions(path, points, distances, l):
+	return np.array([[evaluate_add(path.copy(), position, point, distances)-l for point in points] for position in range(len(path))])
+
+
+def find_path_reductions(path, forbidden, distances, l):
+	ext = [0 if position in forbidden else l - evaluate_cut(path.copy(), position, distances) for position in range(len(path))]
 	return np.array(ext)
 
-def evaluate(path, point, position, distances):
+
+def evaluate_cut(path, position, distances):
+	path.pop(position)
+	return ut.evaluate(path, distances)
+
+
+def evaluate_add(path, position, point, distances):
 	path.insert(position, point)
 	return ut.evaluate(path, distances)
+
+
+def length_extension(path, position, point, distances):
+	i = path[position-1]
+	j = path[(position) % len(path)]
+	i_point = distances[i, point]
+	j_point = distances[j, point]
+	i_j = distances[i,j]
+	return i_point + j_point - i_j
+
+
+def length_reduction(path, position, distances):
+	point = path[position]
+	i = path[position-1]
+	j = path[(position+1) % len(path)]
+	i_point = distances[i, point]
+	j_point = distances[j, point]
+	i_j = distances[i, j]
+	return i_point + j_point - i_j
