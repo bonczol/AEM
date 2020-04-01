@@ -106,16 +106,6 @@ def find_path_reductions(path, forbidden, distances):
 	return np.array(ext)
 
 
-def evaluate_cut(path, position, distances):
-	path.pop(position)
-	return ut.evaluate(path, distances)
-
-
-def evaluate_add(path, position, point, distances):
-	path.insert(position, point)
-	return ut.evaluate(path, distances)
-
-
 def length_extension(path, position, point, distances):
 	i = path[position-1]
 	j = path[(position) % len(path)]

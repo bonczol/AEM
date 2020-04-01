@@ -15,14 +15,14 @@ def calc_distance_matrix(points):
 	return distances
 
 
-def print_plot(data, start_point, points):
+def print_plot(data, start_point, points, title):
+	plt.plot((data[points[0], 0],data[points[-1], 0]), (data[points[0], 1],data[points[-1], 1]), "o:", color="green",  linewidth=2, alpha=0.5)
+	plt.plot(data[points, 0], data[points, 1], "+:", color="green", linewidth=2, alpha=0.5)
 	plt.plot(data[:, 0], data[:, 1], "o:", linewidth=0, alpha=0.5)
 	plt.plot(data[start_point, 0], data[start_point, 1], "ro:", linewidth=0)
-	plt.plot(data[points, 0], data[points, 1], "+:", color="green", linewidth=2, alpha=0.5)
-	plt.plot((data[points[0], 0],data[points[-1], 0]), (data[points[0], 1],data[points[-1], 1]), "ro:",color="red", linewidth=2, alpha=0.5)
 	plt.xlabel("lx")
 	plt.ylabel("ly")
-	plt.title("AEM")
+	plt.title(title)
 	plt.grid(True)
 	plt.show()
 
