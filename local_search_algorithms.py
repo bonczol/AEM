@@ -22,8 +22,17 @@ def steepest(distances, instance):
     # Generate actions
     swap_actions = swap_vertices_actions(n)
     exchange_actions = exchange_vertices_actions(path.shape[0], outside.shape[0])
-    s_max = 1
-    e_max = 1
+    swap_delta = [cal_swap_delta(x[0], x[1], path, distances) for x in swap_actions]
+    exchange_delta = [cal_exchange_delta(x[0], x[1], path, outside, distances) for x in exchange_actions]
+
+    s_max = max(swap_delta)
+    e_max = max(exchange_delta)
+    if s_max > e_max:
+        a = swap_delta.index(s_max)
+        swap_vertices(path, swap_actions[a][0], swap_actions[a][1])
+    else:
+        a = exchange_delta.index(e_max)
+        exchange_vertices(path, exchange_actions[a][0], outside, exchange_actions[a][1])
 
     while s_max > 0 and e_max > 0:
         # DO OGLADANIE POSTEPOW
@@ -68,21 +77,10 @@ def exchange_vertices_actions(path_length, outside_length):
 
 
 def cal_swap_delta(p1, p2, path, distance):
-    old = distance[path[p1], path[p1 - 1]] + distance[path[p2], path[p2 - 1]]
-    new = distance[path[p2], path[p1 - 1]] + distance[path[p1], path[p2 - 1]]
-
-    if not p1 == len(path) - 1:
-        old += distance[path[p1], path[p1 + 1]]
-        new += distance[path[p2], path[p1 + 1]]
-    else:
-        old += distance[path[p1], path[0]]
-        new += distance[path[p2], path[0]]
-    if not p2 == len(path) - 1:
-        old += distance[path[p2], path[p2 + 1]]
-        new += distance[path[p1], path[p2 + 1]]
-    else:
-        old += distance[path[p2], path[0]]
-        new += distance[path[p1], path[0]]
+    old = distance[path[p1], path[p1 - 1]] + distance[path[p2], path[p2 - 1]] + \
+          distance[path[p1], path[(p1 + 1) % len(path)]] + distance[path[p2], path[(p2 + 1) % len(path)]]
+    new = distance[path[p2], path[p1 - 1]] + distance[path[p1], path[p2 - 1]] + \
+          distance[path[p2], path[(p1 + 1) % len(path)]] + distance[path[p1], path[(p2 + 1) % len(path)]]
 
     if abs(p1 - p2) == 1 or abs(p1 - p2) == len(path) - 1:
         new += (distance[path[p1], path[p2]]) * 2
@@ -91,10 +89,6 @@ def cal_swap_delta(p1, p2, path, distance):
 
 
 def cal_exchange_delta(p, o, path, outside, distance):
-    if not p == len(path) - 1:
-        old = distance[path[p], path[p - 1]] + distance[path[p], path[p + 1]]
-        new = distance[outside[o], path[p - 1]] + distance[outside[o], path[p + 1]]
-    else:
-        old = distance[path[p], path[p - 1]] + distance[path[p], path[0]]
-        new = distance[outside[o], path[p - 1]] + distance[outside[o], path[0]]
+    old = distance[path[p], path[p - 1]] + distance[path[p], path[(p + 1) % len(path)]]
+    new = distance[outside[o], path[p - 1]] + distance[outside[o], path[(p + 1) % len(path)]]
     return old - new
