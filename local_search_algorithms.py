@@ -11,14 +11,6 @@ def steepest(distances, instance):
 
     path, outside = random_path(n, n_all)
 
-    # NIE LOSOWY PRZYPADEK
-    # n=5
-    # test=[95, 59, 30, 20, 67]
-    # test_out=[x for x in range(100)]
-    # for x in test: test_out.remove(x)
-    # path = np.array(test)
-    # outside= np.array(test_out)
-
     # Generate actions
     swap_actions = swap_vertices_actions(n)
     exchange_actions = exchange_vertices_actions(path.shape[0], outside.shape[0])
@@ -35,8 +27,6 @@ def steepest(distances, instance):
         exchange_vertices(path, exchange_actions[a][0], outside, exchange_actions[a][1])
 
     while s_max > 0 and e_max > 0:
-        # DO OGLADANIE POSTEPOW
-        # ut.print_plot(instance, 0, path, "Greedy cycle")
         swap_delta = [cal_swap_delta(x[0], x[1], path, distances) for x in swap_actions]
         exchange_delta = [cal_exchange_delta(x[0], x[1], path, outside, distances) for x in exchange_actions]
 
@@ -48,6 +38,49 @@ def steepest(distances, instance):
         else:
             a = exchange_delta.index(e_max)
             exchange_vertices(path, exchange_actions[a][0], outside, exchange_actions[a][1])
+
+    return path
+
+
+def greedy(distances):
+    n_all = distances.shape[0]
+    n = int(np.ceil(n_all / 2))
+
+    path, outside = random_path(n, n_all)
+
+    # Generate actions
+    swap_actions = swap_vertices_actions(n)
+    exchange_actions = exchange_vertices_actions(path.shape[0], outside.shape[0])
+
+    s_end = False
+    e_end = False
+    np.random.shuffle(swap_actions)
+    np.random.shuffle(exchange_actions)
+    s_idx=0
+    e_idx=0
+
+    while not s_end and not e_end:
+            # wylosuj czy swap czy exchange
+            if np.random.random() < 0.5 :
+                if s_idx < len(swap_actions):
+                    if cal_swap_delta(swap_actions[s_idx][0], swap_actions[s_idx][1], path, distances) > 0:
+                        swap_vertices(path, swap_actions[s_idx][0], swap_actions[s_idx][1])
+                        np.random.shuffle(swap_actions)
+                        s_idx = 0
+                    else:
+                        s_idx += 1
+                else:
+                    e_end = True
+            else:
+                if e_idx < len(exchange_actions):
+                    if cal_exchange_delta(exchange_actions[e_idx][0], exchange_actions[e_idx][1], path, outside, distances) > 0:
+                        exchange_vertices(path, exchange_actions[e_idx][0], outside, exchange_actions[e_idx][1])
+                        np.random.shuffle(exchange_actions)
+                        e_idx = 0
+                    else:
+                        e_idx += 1
+                else:
+                    s_end=True
 
     return path
 

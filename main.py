@@ -33,7 +33,7 @@ def main():
 	#
 	# print(min_val, max_val, avg_val)
 	# ut.print_plot(instance, best_start_point, best_solution, "Greedy cycle")
-	solution = alg.steepest(distances, instance)
+	solution = alg.greedy(distances)
 	ut.print_plot(instance, 0, solution, "LS")
   
 if __name__== "__main__":
