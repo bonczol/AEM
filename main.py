@@ -1,7 +1,6 @@
 import utilites as ut
-import greedy_algorithms as alg
 import numpy as np
-import regret_algorithms as ra
+import local_search_algorithms as alg
 
 
 def test(algorithm, instance, distances):
@@ -28,10 +27,14 @@ def main():
 	instances_names = ["kroA100.tsp","kroB100.tsp"]
 	instance = ut.load(f'instances/{instances_names[1]}')
 	distances = ut.calc_distance_matrix(instance)
-	best_solution, best_start_point, min_val, max_val, avg_val = test(alg.greedy_cycle_with_regret, instance, distances)
 
-	print(min_val, max_val, avg_val)
-	ut.print_plot(instance, best_start_point, best_solution, "Greedy cycle")
+	#
+	# best_solution, best_start_point, min_val, max_val, avg_val = test(alg.greedy_cycle_with_regret, instance, distances)
+	#
+	# print(min_val, max_val, avg_val)
+	# ut.print_plot(instance, best_start_point, best_solution, "Greedy cycle")
+	solution = alg.steepest(distances, instance)
+	ut.print_plot(instance, 0, solution, "LS")
   
 if __name__== "__main__":
   main()
