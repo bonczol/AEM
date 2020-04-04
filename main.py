@@ -1,6 +1,7 @@
 import utilites as ut
 import numpy as np
 import local_search_algorithms as alg
+import greedy_algorithms as ga
 
 
 def test(algorithm, instance, distances):

@@ -5,39 +5,32 @@ import sys
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def steepest(distances, instance):
+def steepest(distances):
     n_all = distances.shape[0]
     n = int(np.ceil(n_all / 2))
 
     path, outside = random_path(n, n_all)
 
-    # Generate actions
     swap_actions = swap_vertices_actions(n)
     exchange_actions = exchange_vertices_actions(path.shape[0], outside.shape[0])
-    swap_delta = [cal_swap_delta(x[0], x[1], path, distances) for x in swap_actions]
-    exchange_delta = [cal_exchange_delta(x[0], x[1], path, outside, distances) for x in exchange_actions]
 
-    s_max = max(swap_delta)
-    e_max = max(exchange_delta)
-    if s_max > e_max:
-        a = swap_delta.index(s_max)
-        swap_vertices(path, swap_actions[a][0], swap_actions[a][1])
-    else:
-        a = exchange_delta.index(e_max)
-        exchange_vertices(path, exchange_actions[a][0], outside, exchange_actions[a][1])
+    while True: 
+        swap_delta = [calc_swap_delta(s, path, distances) for s in swap_actions]
+        exchange_delta = [calc_exchange_delta(e, path, outside, distances) for e in exchange_actions]
 
-    while s_max > 0 and e_max > 0:
-        swap_delta = [cal_swap_delta(x[0], x[1], path, distances) for x in swap_actions]
-        exchange_delta = [cal_exchange_delta(x[0], x[1], path, outside, distances) for x in exchange_actions]
+        smax_idx = np.argmax(swap_delta)
+        emax_idx = np.argmax(exchange_delta)
 
-        s_max = max(swap_delta)
-        e_max = max(exchange_delta)
-        if s_max > e_max:
-            a = swap_delta.index(s_max)
-            swap_vertices(path, swap_actions[a][0], swap_actions[a][1])
+        smax = swap_delta[smax_idx]
+        emax = exchange_delta[emax_idx]
+
+        if smax <= 0 and emax < 0:
+            break
+
+        if smax > emax:
+            swap_vertices(path, swap_actions[smax_idx])
         else:
-            a = exchange_delta.index(e_max)
-            exchange_vertices(path, exchange_actions[a][0], outside, exchange_actions[a][1])
+            exchange_vertices(path, outside, exchange_actions[emax_idx])
 
     return path
 
@@ -48,39 +41,30 @@ def greedy(distances):
 
     path, outside = random_path(n, n_all)
 
-    # Generate actions
     swap_actions = swap_vertices_actions(n)
     exchange_actions = exchange_vertices_actions(path.shape[0], outside.shape[0])
 
-    s_end = False
-    e_end = False
-    np.random.shuffle(swap_actions)
-    np.random.shuffle(exchange_actions)
-    s_idx=0
-    e_idx=0
+    shuffle(swap_actions, exchange_actions)
+    scurrent, ecurrent = 0, 0
+    slen, elen = len(swap_actions), len(exchange_actions)
 
-    while not s_end and not e_end:
-            # wylosuj czy swap czy exchange
-            if np.random.random() < 0.5 :
-                if s_idx < len(swap_actions):
-                    if cal_swap_delta(swap_actions[s_idx][0], swap_actions[s_idx][1], path, distances) > 0:
-                        swap_vertices(path, swap_actions[s_idx][0], swap_actions[s_idx][1])
-                        np.random.shuffle(swap_actions)
-                        s_idx = 0
-                    else:
-                        s_idx += 1
-                else:
-                    e_end = True
+    while True:
+        if scurrent >= slen and ecurrent >= elen:
+            break
+        elif (np.random.random() < 0.5 and scurrent < slen) or ecurrent >= elen:
+            if calc_swap_delta(swap_actions[scurrent], path, distances) > 0:
+                swap_vertices(path, swap_actions[scurrent])
+                shuffle(swap_actions, exchange_actions)
+                scurrent, ecurrent = 0, 0
             else:
-                if e_idx < len(exchange_actions):
-                    if cal_exchange_delta(exchange_actions[e_idx][0], exchange_actions[e_idx][1], path, outside, distances) > 0:
-                        exchange_vertices(path, exchange_actions[e_idx][0], outside, exchange_actions[e_idx][1])
-                        np.random.shuffle(exchange_actions)
-                        e_idx = 0
-                    else:
-                        e_idx += 1
-                else:
-                    s_end=True
+                scurrent += 1
+        else:
+            if calc_exchange_delta(exchange_actions[ecurrent], path, outside, distances) > 0:
+                exchange_vertices(path, outside, exchange_actions[ecurrent])
+                shuffle(swap_actions, exchange_actions)
+                scurrent, ecurrent = 0, 0
+            else:
+                ecurrent += 1
 
     return path
 
@@ -92,11 +76,13 @@ def random_path(length, dataset_size):
     return path, outside
 
 
-def swap_vertices(path, v1, v2):
+def swap_vertices(path, swap_action):
+    v1, v2 = swap_action
     path[v1], path[v2] = path[v2], path[v1]
 
 
-def exchange_vertices(path, vp, outside, vo):
+def exchange_vertices(path, outside, exchange_action):
+    vp, vo = exchange_action
     path[vp], outside[vo] = outside[vo], path[vp]
 
 
@@ -109,7 +95,8 @@ def exchange_vertices_actions(path_length, outside_length):
     return np.array(list(product), "int64")
 
 
-def cal_swap_delta(p1, p2, path, distance):
+def calc_swap_delta(swap_action, path, distance):
+    p1, p2 = swap_action
     old = distance[path[p1], path[p1 - 1]] + distance[path[p2], path[p2 - 1]] + \
           distance[path[p1], path[(p1 + 1) % len(path)]] + distance[path[p2], path[(p2 + 1) % len(path)]]
     new = distance[path[p2], path[p1 - 1]] + distance[path[p1], path[p2 - 1]] + \
@@ -121,7 +108,13 @@ def cal_swap_delta(p1, p2, path, distance):
     return old - new
 
 
-def cal_exchange_delta(p, o, path, outside, distance):
+def calc_exchange_delta(exchange_action, path, outside, distance):
+    p, o = exchange_action
     old = distance[path[p], path[p - 1]] + distance[path[p], path[(p + 1) % len(path)]]
     new = distance[outside[o], path[p - 1]] + distance[outside[o], path[(p + 1) % len(path)]]
     return old - new
+
+
+def shuffle(swap_actions, exchange_actions):
+    np.random.shuffle(swap_actions)
+    np.random.shuffle(exchange_actions)
