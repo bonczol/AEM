@@ -78,7 +78,7 @@ def steepest_v2(distances, instance):
     debug = True
     while LM and id < len(LM):
         first = LM[id]
-        print(len(LM))
+        # print(len(LM))
         # ut.print_plot(instance, 0, path, "LS")
 
         if first[0] == "s":
@@ -89,19 +89,29 @@ def steepest_v2(distances, instance):
                     path = swap_edges_succ(path, first[3], first[4])
                     # print(first[3], first[4])
 
-                    # znajdz nowe ruchy
-                    for i, x in enumerate(path):
-                        x_next = path[(i + 1) % len(path)]
-                        if x_next != first[3][0] and x != first[3][0] and x != first[4][1]:
-                            delta = calc_swap_edges_delta_succ((first[3][0], first[4][1]), (x, x_next), distances)
-                            if delta > 0:
-                                add_to_list(LM, ["s", delta, 0, (first[3][0], first[4][1]), (x, x_next), "s1111"])
+                    # # znajdz nowe ruchy
+                    # for i, x in enumerate(path):
+                    #     x_next = path[(i + 1) % len(path)]
+                    #     if x_next != first[3][0] and x != first[3][0] and x != first[4][1]:
+                    #         delta = calc_swap_edges_delta_succ((first[3][0], first[4][1]), (x, x_next), distances)
+                    #         if delta > 0:
+                    #             add_to_list(LM, ["s", delta, 0, (first[3][0], first[4][1]), (x, x_next), "s1111"])
+                    #
+                    #     elif x_next != first[4][0] and x != first[4][0] and x != first[3][1]:
+                    #         x_next = path[(i + 1) % len(path)]
+                    #         delta = calc_swap_edges_delta_succ((first[4][0], first[3][1]), (x, x_next), distances)
+                    #         if delta > 0:
+                    #             add_to_list(LM, ["s", delta, 0, (first[4][0], first[3][1]), (x, x_next), "s2222"])
 
-                        elif x_next != first[4][0] and x != first[4][0] and x != first[3][1]:
+                    for i, x in enumerate(path):
+                        for j, y in enumerate(path):
                             x_next = path[(i + 1) % len(path)]
-                            delta = calc_swap_edges_delta_succ((first[4][0], first[3][1]), (x, x_next), distances)
-                            if delta > 0:
-                                add_to_list(LM, ["s", delta, 0, (first[4][0], first[3][1]), (x, x_next), "s2222"])
+                            y_next = path[(j + 1) % len(path)]
+                            if x_next != y and x != y_next and x != y:
+                                delta = calc_swap_edges_delta_succ((y, y_next), (x, x_next), distances)
+                                if delta > 0:
+                                    add_to_list(LM, ["s", delta, 0, (y, y_next), (x, x_next), "s1111"])
+
 
                     LM.pop(id)
                     id = 0
