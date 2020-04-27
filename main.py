@@ -3,7 +3,7 @@ import numpy as np
 import local_search_algorithms as alg
 import greedy_algorithms as ga
 import time
-
+import chyba_better_LS as bt
 
 def test(algorithm, instance, distances):
 	n = instance.shape[0]
@@ -35,8 +35,9 @@ def main():
 	instance = ut.load(f'instances/{instances_names[1]}')
 	distances = ut.calc_distance_matrix(instance)
 
-	best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.greedy_edges, instance, distances)
-	print(min_val, max_val, avg_val, avg_time)
+	# best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.greedy_edges, instance, distances)
+	# print(min_val, max_val, avg_val, avg_time)
+	best_solution= bt.steepest_v2(distances, instance)
 	ut.print_plot(instance, 0, best_solution, "LS")
   
 if __name__== "__main__":
