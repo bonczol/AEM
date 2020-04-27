@@ -41,7 +41,7 @@ def steepest(distances, swap, calc_swap_delta, get_swap_actions):
         smax = swap_delta[smax_idx]
         emax = exchange_delta[emax_idx]
 
-        if smax <= 0 and emax < 0:
+        if smax <= 0 and emax <= 0:
             break
 
         if smax > emax:
