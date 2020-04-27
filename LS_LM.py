@@ -43,7 +43,7 @@ def exchange_vertices_succ(path, outside, vp, vo):
     return path, outside
 
 
-def steepest_v2(distances):
+def LS_LM(distances):
     n_all = distances.shape[0]
     n = int(np.ceil(n_all / 2))
 
