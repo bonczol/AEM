@@ -1,12 +1,11 @@
 import utilites as ut
 import numpy as np
-import local_search_algorithms as alg
+import local_search_based_algorithms as alg
 import greedy_algorithms as ga
 import time
-import chyba_better_LS as bt
 
 def test(algorithm, instance, distances):
-	n = instance.shape[0]
+	n = 10
 	solutions = []
 	times = []
 	results = np.zeros(n, dtype="int64")
@@ -31,13 +30,12 @@ def test(algorithm, instance, distances):
 
 def main():
 	start_point = 0
-	instances_names = ["kroA100.tsp","kroB100.tsp"]
-	instance = ut.load(f'instances/{instances_names[1]}')
+	instances_names = ["kroA100.tsp","kroB100.tsp", "kroA200.tsp", "kroB200.tsp"]
+	instance = ut.load(f'instances/{instances_names[3]}')
 	distances = ut.calc_distance_matrix(instance)
 
-	# best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.greedy_edges, instance, distances)
-	# print(min_val, max_val, avg_val, avg_time)
-	best_solution= bt.steepest_v2(distances, instance)
+	best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.multiple_start_ls, instance, distances)
+	print(min_val, max_val, avg_val, avg_time)
 	ut.print_plot(instance, 0, best_solution, "LS")
   
 if __name__== "__main__":
