@@ -34,9 +34,9 @@ def main():
 	instance = ut.load(f'instances/{instances_names[3]}')
 	distances = ut.calc_distance_matrix(instance)
 
-	best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.multiple_start_ls, instance, distances)
+	best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.iterated_ls1, instance, distances)
 	print(min_val, max_val, avg_val, avg_time)
-	ut.print_plot(instance, 0, best_solution, "LS")
+	ut.print_plot(instance, 0, best_solution, "MSLS - kroB200")
   
 if __name__== "__main__":
   main()
