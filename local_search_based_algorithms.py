@@ -5,7 +5,7 @@ import time
 import greedy_algorithms as greedy
 
 AVG_MSLS_SCORE = 15433.7
-AVG_MSLS_TIME = 760
+AVG_MSLS_TIME = 200
 
 def multiple_start_ls(distances):
     m = 100
@@ -78,8 +78,9 @@ def perturbation_small(path):
 
 def perturbation_destroy(path):
     # TUTAJ Trzeba jakos sensownie wywalic z 20% wiercholkow z rozwiazania
-    max_offset = int(len(path) * 0.2)
-    path.pop(np.random.randint(max_offset))
+    a = int(len(path) * 0.2)
+    for i in range(1,a):
+        path.pop(np.random.randint(len(path)-i))
     return path
 
 
