@@ -37,5 +37,10 @@ def evaluate(path, distances):
 	return length
 
 
+# Check if path length is correct and there are no duplicates in path
+def validate(path, n):
+	return len(set(path)) == n
 
 
+def validate_full(path, outside, n_all, n):
+	return len(set(path)) == n and len(set(outside)) == (n_all - n) and len(np.intersect1d(path, outside)) == 0

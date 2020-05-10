@@ -8,11 +8,14 @@ def test(algorithm, instance, distances):
 	n = 10
 	solutions = []
 	times = []
+	ls_counts = []
 	results = np.zeros(n, dtype="int64")
 
 	for i in range(n):
 		start = time.perf_counter()
-		solutions.append(algorithm(distances))
+		solution, count = algorithm(distances)
+		solutions.append(solution)
+		ls_counts.append(count)
 		end = time.perf_counter()
 		times.append(end - start)
 		results[i] = ut.evaluate(solutions[i], distances)
@@ -24,8 +27,11 @@ def test(algorithm, instance, distances):
 	max_val = np.max(results)
 	avg_val = np.mean(results)
 	avg_time = np.mean(times)
+	min_ls_count = np.min(ls_counts)
+	max_ls_count = np.max(ls_counts)
+	avg_ls_count = np.mean(ls_counts)
 
-	return best_solution, best_start_point, min_val, max_val, avg_val, avg_time
+	return best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count
 
 
 def main():
@@ -34,9 +40,10 @@ def main():
 	instance = ut.load(f'instances/{instances_names[3]}')
 	distances = ut.calc_distance_matrix(instance)
 
-	best_solution, best_start_point, min_val, max_val, avg_val, avg_time = test(alg.iterated_ls1, instance, distances)
-	print(min_val, max_val, avg_val, avg_time)
-	ut.print_plot(instance, 0, best_solution, "MSLS - kroB200")
+	best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.iterated_ls1, instance, distances)
+	print("Results: ", min_val, max_val, avg_val, avg_time)
+	print("LS runs: ", min_ls_count, max_ls_count, avg_ls_count)
+	ut.print_plot(instance, 0, best_solution, "ITLS1 - kroB200")
   
 if __name__== "__main__":
   main()
