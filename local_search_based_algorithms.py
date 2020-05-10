@@ -51,22 +51,26 @@ def iterated_ls1(distances):
 	return best_path, ls_count
 
 
-# def iterated_ls2(distances):
-# 	n_all = distances.shape[0]
-# 	n = int(np.ceil(n_all / 2))
+def iterated_ls2(distances):
+	n_all = distances.shape[0]
+	n = int(np.ceil(n_all / 2))
 
-# 	path, outside = ls.random_path(n, n_all)
+	path, outside = ls.random_path(n, n_all)
 
-# 	swap_actions = ls.swap_edges_actions(n)
-# 	exchange_actions = ls.exchange_vertices_actions(path.shape[0], outside.shape[0])
-# 	start = time.perf_counter()
-# 	path = steepest(distances, path, outside, swap_actions, exchange_actions)
-# 	path = path.tolist()
-# 	while time.perf_counter() - start < AVG_MSLS_TIME:
-# 		path = perturbation_destroy(path)
-# 		path = greedy_cycle(path, n, n_all, distances)
+	swap_actions = ls.swap_edges_actions(n)
+	exchange_actions = ls.exchange_vertices_actions(path.shape[0], outside.shape[0])
+	start = time.perf_counter()
+	path, _ = steepest(distances, path, outside, swap_actions, exchange_actions)
+	path = path.tolist()
+	count = 0
+	while time.perf_counter() - start < AVG_MSLS_TIME:
+		path = perturbation_destroy(path)
+		path = greedy_cycle(path, n, n_all, distances)
+		outside = list(set(np.arange(n_all)) - set(path))
+		path, _ = steepest(distances, path, outside, swap_actions, exchange_actions)
+		count += 1
 
-# 	return path
+	return path, count
 
 def perturbation(path, k):
 	new_path = path.copy()
