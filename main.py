@@ -1,6 +1,6 @@
 import utilites as ut
 import numpy as np
-import local_search_based_algorithms as alg
+import evolutionary_algorithm as alg
 import greedy_algorithms as ga
 import time
 
@@ -40,7 +40,7 @@ def main():
 	instance = ut.load(f'instances/{instances_names[3]}')
 	distances = ut.calc_distance_matrix(instance)
 
-	best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.iterated_ls1, instance, distances)
+	best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.evolutionary, instance, distances)
 	print("Results: ", min_val, max_val, avg_val, avg_time)
 	print("LS runs: ", min_ls_count, max_ls_count, avg_ls_count)
 	ut.print_plot(instance, 0, best_solution, "ITLS1 - kroB200")
