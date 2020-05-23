@@ -5,7 +5,7 @@ import utilites as ut
 import local_search_algorithms as ls
 import local_search_based_algorithms as lsb
 
-AVG_MSLS_TIME = 30
+AVG_MSLS_TIME = 300
 
 
 def evolutionary(distances):
@@ -20,18 +20,20 @@ def evolutionary(distances):
 
     # Individual in population is a tuple (path, score)
     population_size = 20
-    population = generate_population(population_size, n, n_all)
+    population = generate_population(population_size, n, n_all, distances, swap_actions, exchange_actions)
     scores = np.array([ut.evaluate(path, distances) for path in population])
     worst_idx = np.argmax(scores)
 
     while time.perf_counter() - start < AVG_MSLS_TIME:
+        # print("start" , time.perf_counter() - start)
         path1, path2 = pick_two_random(population)
-        recombined_path = recombination(path1, path2)
+        recombined_path = recombination(path1, path2, n)
 
+        # print("before LS", time.perf_counter() - start)
         new_path, _ = lsb.steepest(distances, recombined_path, get_outside(recombined_path, n_all), swap_actions, exchange_actions)
+        # print("afterLS", time.perf_counter() - start)
         new_score = ut.evaluate(new_path, distances)
         ls_count = ls_count + 1
-
         if new_score < scores[worst_idx] and is_unique_in_population(population, new_path):
             population[worst_idx] = new_path
             scores[worst_idx] = new_score
@@ -41,12 +43,13 @@ def evolutionary(distances):
 
 
 # TODO zastanwoić się czy generujemy populację losowo czy np. z greedy cycle albo nawet część losowo i częśc greedy
-def generate_population(population_size, n, n_all):
+def generate_population(population_size, n, n_all, distances, swap_actions, exchange_actions):
     population = np.zeros((population_size, n), int)
     current_population_size = 0
 
     while current_population_size < population_size:
         path, _ = ls.random_path(n, n_all)
+        path, _ = lsb.steepest(distances, path, _, swap_actions, exchange_actions)
         if is_unique_in_population(population, path):
             population[current_population_size] = path
             current_population_size += 1
@@ -59,9 +62,23 @@ def pick_two_random(population):
     return population[picked_keys[0]], population[picked_keys[1]]
 
 
-def recombination(path, another_path):
+def recombination(path, another_path,n):
     # TODO zrobić rekombinacje na dwóch ścieżkach
-    return np.arange(0, 100)
+    children_path = []
+    for i in path:
+        for j in another_path:
+            if i==j:
+                children_path.append(i)
+                break
+
+    if len(children_path)<n:
+        diff=np.setxor1d(path, another_path)
+        np.random.shuffle(diff)
+        diff = diff.tolist()
+        for i in range(len(children_path), n):
+            children_path.append(diff.pop(0))
+
+    return np.array(children_path)
 
 
 def get_outside(path, n_all):

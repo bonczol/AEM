@@ -97,6 +97,7 @@ def perturbation_destroy(path):
 
 
 def steepest(distances, path, outside, swap_actions, exchange_actions):
+	start = time.perf_counter()
 	new_path, new_outside = path.copy(), outside.copy() 
 
 	while True:
@@ -116,7 +117,7 @@ def steepest(distances, path, outside, swap_actions, exchange_actions):
 			ls.swap_edges(new_path, swap_actions[smax_idx])
 		else:
 			ls.exchange_vertices(new_path, new_outside, exchange_actions[emax_idx])
-
+	print("Jedna iteraracja LS trwa:", time.perf_counter() - start)
 	return new_path, new_outside
 
 
