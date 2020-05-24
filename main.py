@@ -37,13 +37,13 @@ def test(algorithm, instance, distances):
 def main():
 	start_point = 0
 	instances_names = ["kroA100.tsp","kroB100.tsp", "kroA200.tsp", "kroB200.tsp"]
-	instance = ut.load(f'instances/{instances_names[3]}')
+	instance = ut.load(f'instances/{instances_names[2]}')
 	distances = ut.calc_distance_matrix(instance)
 
 	best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.evolutionary, instance, distances)
 	print("Results: ", min_val, max_val, avg_val, avg_time)
 	print("LS runs: ", min_ls_count, max_ls_count, avg_ls_count)
-	ut.print_plot(instance, 0, best_solution, "ITLS1 - kroB200")
+	ut.print_plot(instance, 0, best_solution, "Hybrid evo - kroA200")
   
 if __name__== "__main__":
   main()

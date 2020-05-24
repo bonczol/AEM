@@ -5,7 +5,7 @@ import utilites as ut
 import local_search_algorithms as ls
 import local_search_based_algorithms as lsb
 
-AVG_MSLS_TIME = 300
+AVG_MSLS_TIME = 737
 
 
 def evolutionary(distances):
@@ -25,13 +25,10 @@ def evolutionary(distances):
     worst_idx = np.argmax(scores)
 
     while time.perf_counter() - start < AVG_MSLS_TIME:
-        # print("start" , time.perf_counter() - start)
         path1, path2 = pick_two_random(population)
         recombined_path = recombination(path1, path2, n)
 
-        # print("before LS", time.perf_counter() - start)
         new_path, _ = lsb.steepest(distances, recombined_path, get_outside(recombined_path, n_all), swap_actions, exchange_actions)
-        # print("afterLS", time.perf_counter() - start)
         new_score = ut.evaluate(new_path, distances)
         ls_count = ls_count + 1
         if new_score < scores[worst_idx] and is_unique_in_population(population, new_path):
@@ -48,8 +45,11 @@ def generate_population(population_size, n, n_all, distances, swap_actions, exch
     current_population_size = 0
 
     while current_population_size < population_size:
-        path, _ = ls.random_path(n, n_all)
-        path, _ = lsb.steepest(distances, path, _, swap_actions, exchange_actions)
+        # path, _ = ls.random_path(n, n_all)
+        # path, _ = lsb.steepest(distances, path, _, swap_actions, exchange_actions)
+
+        path = lsb.greedy_cycle([np.random.randint(n_all)], n, n_all, distances)
+
         if is_unique_in_population(population, path):
             population[current_population_size] = path
             current_population_size += 1
@@ -63,7 +63,6 @@ def pick_two_random(population):
 
 
 def recombination(path, another_path,n):
-    # TODO zrobić rekombinacje na dwóch ścieżkach
     children_path = []
     for i in path:
         for j in another_path:

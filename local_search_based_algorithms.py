@@ -89,7 +89,6 @@ def double_edge_bridge(path):
 
 
 def perturbation_destroy(path):
-	# TUTAJ Trzeba jakos sensownie wywalic z 20% wiercholkow z rozwiazania
 	a = int(len(path) * 0.2)
 	for i in range(1,a):
 		path.pop(np.random.randint(len(path)-i))
@@ -97,8 +96,8 @@ def perturbation_destroy(path):
 
 
 def steepest(distances, path, outside, swap_actions, exchange_actions):
-	start = time.perf_counter()
-	new_path, new_outside = path.copy(), outside.copy() 
+
+	new_path, new_outside = path.copy(), outside.copy()
 
 	while True:
 		swap_delta = [ls.calc_swap_edges_delta(s, new_path, distances) for s in swap_actions]
@@ -117,7 +116,6 @@ def steepest(distances, path, outside, swap_actions, exchange_actions):
 			ls.swap_edges(new_path, swap_actions[smax_idx])
 		else:
 			ls.exchange_vertices(new_path, new_outside, exchange_actions[emax_idx])
-	print("Jedna iteraracja LS trwa:", time.perf_counter() - start)
 	return new_path, new_outside
 
 
