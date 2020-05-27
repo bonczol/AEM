@@ -18,10 +18,8 @@ def evolutionary(distances):
     swap_actions = ls.swap_edges_actions(n)
     exchange_actions = ls.exchange_vertices_actions(n, n_all - n)
 
-    # Individual in population is a tuple (path, score)
     population_size = 20
-    population = generate_population(population_size, n, n_all, distances, swap_actions, exchange_actions)
-    scores = np.array([ut.evaluate(path, distances) for path in population])
+    population, scores = generate_population(population_size, n, n_all, distances, swap_actions, exchange_actions)
     worst_idx = np.argmax(scores)
 
     while time.perf_counter() - start < AVG_MSLS_TIME:
@@ -31,7 +29,8 @@ def evolutionary(distances):
         new_path, _ = lsb.steepest(distances, recombined_path, get_outside(recombined_path, n_all), swap_actions, exchange_actions)
         new_score = ut.evaluate(new_path, distances)
         ls_count = ls_count + 1
-        if new_score < scores[worst_idx] and is_unique_in_population(population, new_path):
+
+        if new_score < scores[worst_idx] and is_unique_in_population(population, scores, new_path, new_score):
             population[worst_idx] = new_path
             scores[worst_idx] = new_score
             worst_idx = np.argmax(scores)
@@ -39,22 +38,21 @@ def evolutionary(distances):
     return population[np.argmin(scores)], ls_count
 
 
-# TODO zastanwoić się czy generujemy populację losowo czy np. z greedy cycle albo nawet część losowo i częśc greedy
 def generate_population(population_size, n, n_all, distances, swap_actions, exchange_actions):
     population = np.zeros((population_size, n), int)
+    scores = np.zeros(population_size, int)
     current_population_size = 0
 
     while current_population_size < population_size:
-        # path, _ = ls.random_path(n, n_all)
-        # path, _ = lsb.steepest(distances, path, _, swap_actions, exchange_actions)
-
         path = lsb.greedy_cycle([np.random.randint(n_all)], n, n_all, distances)
+        score = ut.evaluate(path, distances)
 
-        if is_unique_in_population(population, path):
+        if is_unique_in_population(population, scores, path, score):
             population[current_population_size] = path
+            scores[current_population_size] = score
             current_population_size += 1
 
-    return population
+    return population, scores
 
 
 def pick_two_random(population):
@@ -94,10 +92,11 @@ def paths_equal(path, another_path):
     return False
         
         
-def is_unique_in_population(population, path):
-    for individual in population:
-        if paths_equal(individual, path):
-            return False
+def is_unique_in_population(population, population_scores, path, path_score):
+    for individual, score in zip(population, population_scores):
+        if score == path_score:
+            if paths_equal(individual, path):
+                return False
     
     return True
     

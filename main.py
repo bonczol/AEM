@@ -3,6 +3,7 @@ import numpy as np
 import evolutionary_algorithm as alg
 import greedy_algorithms as ga
 import time
+import global_convex
 
 def test(algorithm, instance, distances):
 	n = 10
@@ -35,15 +36,19 @@ def test(algorithm, instance, distances):
 
 
 def main():
-	start_point = 0
-	instances_names = ["kroA100.tsp","kroB100.tsp", "kroA200.tsp", "kroB200.tsp"]
-	instance = ut.load(f'instances/{instances_names[2]}')
-	distances = ut.calc_distance_matrix(instance)
+	N = 1000
+	instances_names = ["kroA100.tsp", "kroB100.tsp", "kroA200.tsp", "kroB200.tsp"]
+	opt_filenames = ["kroA100_opt.txt", "kroB100_opt.txt", "kroA200_opt.txt", "kroB200_opt.txt"]
 
-	best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.evolutionary, instance, distances)
-	print("Results: ", min_val, max_val, avg_val, avg_time)
-	print("LS runs: ", min_ls_count, max_ls_count, avg_ls_count)
-	ut.print_plot(instance, 0, best_solution, "Hybrid evo - kroA200")
+	for instance_name, filename in zip(instances_names, opt_filenames):
+		instance = ut.load(f'instances/{instance_name}')
+		distances = ut.calc_distance_matrix(instance)
+		global_convex.generate_optimums(f'optimums/{filename}', N, distances)
+
+	# best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.evolutionary, instance, distances)
+	# print("Results: ", min_val, max_val, avg_val, avg_time)
+	# print("LS runs: ", min_ls_count, max_ls_count, avg_ls_count)
+	# ut.print_plot(instance, 0, best_solution, "Hybrid evo - kroA200")
   
 if __name__== "__main__":
   main()
