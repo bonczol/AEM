@@ -43,7 +43,8 @@ def main():
 	for instance_name, filename in zip(instances_names, opt_filenames):
 		instance = ut.load(f'instances/{instance_name}')
 		distances = ut.calc_distance_matrix(instance)
-		global_convex.generate_optimums(f'optimums/{filename}', N, distances)
+		# global_convex.generate_optimums(f'optimums/{filename}', N, distances)
+		global_convex.global_convex(f'optimums/{filename}', distances)
 
 	# best_solution, best_start_point, min_val, max_val, avg_val, avg_time, min_ls_count, max_ls_count, avg_ls_count = test(alg.evolutionary, instance, distances)
 	# print("Results: ", min_val, max_val, avg_val, avg_time)
