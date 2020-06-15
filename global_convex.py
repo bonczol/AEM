@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 
-def global_convex(filename, distances):
+def global_convex(filename, distances, f):
     optimums = np.loadtxt(filename, dtype ='int')
 
     score = np.empty(optimums.shape[0])
@@ -26,17 +26,30 @@ def global_convex(filename, distances):
     for i, path in enumerate(optimums):
         vertices_similarities[i] = vertices_similarity(path, best_path)
         edges_similarities[i] = edges_similarity(path, best_path)
-        correlation[i] = stats.pearsonr(path, best_path)[0]
+        mean_vertices_similar = 0
+        mean_edges_similar = 0
+        for another_path in optimums:
+            mean_vertices_similar += vertices_similarity(path, another_path)
+            mean_edges_similar += edges_similarity(path, another_path)
+        mean_vertices_similarities[i] = mean_vertices_similar/optimums.shape[0]
+        mean_edges_similarities[i] = mean_edges_similar/optimums.shape[0]
 
-    # plt.plot(score, edges_similarities, "o:", color="red", linewidth=0, alpha=0.2)
+    print(f, stats.pearsonr(score, vertices_similarities)[0])
+    print(f, stats.pearsonr(score, edges_similarities)[0])
+    print(f, stats.pearsonr(score, mean_vertices_similarities)[0])
+    print(f, stats.pearsonr(score, mean_edges_similarities)[0])
+    print("etap")
+
+    plt.plot(score,edges_similarities, "o:", color="green", linewidth=0, alpha=0.2)
     # plt.plot(score, vertices_similarities, "o:", color="green", linewidth=0, alpha=0.2)
-    plt.plot(score, correlation, "o:", color="green", linewidth=0, alpha=0.2)
-    plt.plot(score[best_path_index], vertices_similarities[best_path_index], "o:", linewidth=0, alpha=0.5)
+    plt.plot(score[best_path_index], edges_similarities[best_path_index], "o:", linewidth=0, alpha=0.5)
     plt.xlabel("lx")
     plt.ylabel("ly")
-    plt.title(filename)
+    title = "edges_similarities - "+f
+    plt.title(title)
+    plt.savefig(f"plots/{title}.png")
     plt.grid(True)
-    plt.show()
+    # plt.show()
 
     return 0
 
